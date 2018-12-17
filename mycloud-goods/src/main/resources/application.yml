@@ -1,0 +1,101 @@
+server:
+  port: 9030
+
+spring:
+  cloud:
+    zookeeper:
+      connect-string: discovery1:2181,discovery2:2181,discovery3:2181
+      discovery:
+        instance-host: ${spring.cloud.client.ipAddress}
+
+    stream:
+      bindings:
+        myGoodsFromReliable:
+          content-type: application/json
+          destination: myGoodsFromReliable
+          group: mycloud-goods
+
+      rabbit:
+        bindings:
+          myGoodsFromReliable:
+            consumer:
+              maxAttempts: 1
+
+
+  rabbitmq:
+    host: 192.168.105.80
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+
+
+  profiles:
+    active: dev
+
+  application:
+    name: mycloud-goods
+
+  datasource:
+    druid:
+      max-wait: 30000
+      query-timeout: 10
+      validation-query: SELECT 1
+      use-global-data-source-stat: true
+      # 默认开启，当前已开启
+      stat:
+        log-slow-sql: true
+        slow-sql-millis: 1000
+      # 默认关闭，需手动开启，当前已开启
+      slf4j:
+        enabled: true
+        data-source-log-enabled: false
+        connection-log-enabled: false
+        statement-log-enabled: false
+        result-set-log-enabled: false
+      # 默认关闭，需手动开启，当前已开启
+      wall:
+        enabled: true
+        log-violation: true
+        throw-exception: false
+        config:
+          delete-where-none-check: true
+      # 默认关闭，需手动开启，当前已关闭
+      config:
+        enabled: false
+      # 默认关闭，需手动开启，当前已关闭
+      web-stat:
+        enabled: false
+      # 默认关闭，需手动开启，当前已关闭
+      aop-stat:
+        enabled: false
+      # 默认关闭，需手动开启，当前已关闭
+      stat-view-servlet:
+        enabled: true
+        login-username: admin
+        reset-enable: true
+        login-password: 123456
+
+logging:
+  level:
+    root: INFO
+  file: D:/logs/${spring.application.name}/${spring.application.name}.log
+
+---
+spring:
+  profiles: dev
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+      naming:
+        strategy: org.hibernate.cfg.ImprovedNamingStrategy
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+    generate-ddl: false
+
+  datasource:
+      url: jdbc:mysql://192.168.105.80:3306/messagedemo2?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+      username: root
+      password: 123456
